@@ -1,4 +1,4 @@
-"use client"; // Mark this file as a client component
+"use client";
 
 import { cn } from "@/lib/utils";
 import React from "react";
@@ -32,26 +32,31 @@ const BookCover: React.FC<Props> = ({
   return (
     <div
       className={cn(
-        "relative transition-all duration-300",
+        "relative transition-all duration-300 rounded-sm overflow-hidden",
         variantStyles[variant],
         className
       )}
       style={{ backgroundColor: coverColor }}
+      aria-label={altText}
     >
       {/* Book Side SVG */}
-      <div className="absolute inset-0 flex items-center justify-center text-gray-200">
+      <div className="absolute inset-0 z-0 flex items-center justify-center ">
         <BookCoverSvg coverColor={coverColor} />
       </div>
 
       {/* Book Cover Image */}
       <div
         className="absolute z-10"
-        style={{ left: "12%", width: "87.5%", height: "88%" }}
+        style={{
+          left: "12%",
+          width: "87.5%",
+          height: "88%",
+        }}
       >
         <img
           src={coverImage}
           alt={altText}
-          className="rounded-sm object-cover w-full h-full"
+          className="w-full h-full object-cover rounded-sm"
           onError={(e) => {
             e.currentTarget.src = "https://placehold.co/400x600.png";
             e.currentTarget.alt = "Fallback book cover image";
