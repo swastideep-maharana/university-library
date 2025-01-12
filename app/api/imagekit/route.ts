@@ -1,31 +1,55 @@
-import ImageKit from "imagekit";
-import config from "@/lib/config";
-import { NextResponse } from "next/server";
+import { NextApiRequest, NextApiResponse } from "next";
+import axios from "axios";
 
-const {
-  env: {
-    imagekit: { publicKey, privateKey, urlEndpoint },
-  },
-} = config;
+const uploadImageToImageKit = async (
+  req: NextApiRequest,
+  res: NextApiResponse
+) => {
+  if (req.method === "POST") {
+    try {
+      const { file } = req.body; // Expecting base64 or URL of the file, or a file input form
 
-const imagekit = new ImageKit({ publicKey, privateKey, urlEndpoint });
+      if (!file) {
+        return res.status(400).json({ error: "File is required" });
+      }
 
-export async function GET() {
-  try {
-    const authParams = imagekit.getAuthenticationParameters();
+      // Check if file is a valid string or Blob (base64, URL, or file object)
+      if (typeof file === "string" || file instanceof Blob) {
+        const formData = new FormData();
+        formData.append("file", file); // Now it's safe to append
+        formData.append(
+          "publicKey",
+          process.env.NEXT_PUBLIC_IMAGEKIT_PUBLIC_KEY || ""
+        );
+        formData.append("folder", "/uploads"); // Optional: specify folder in ImageKit
 
-    if (!authParams) {
-      throw new Error("Failed to get authentication parameters from ImageKit");
+        // Authenticate using private key in the Authorization header (Base64 encoding)
+        const headers = {
+          Authorization: `Basic ${Buffer.from(process.env.IMAGEKIT_PRIVATE_KEY || "").toString("base64")}`,
+        };
+
+        const response = await axios.post(
+          "https://api.imagekit.io/v1/files/upload",
+          formData,
+          {
+            headers: {
+              ...headers,
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+
+        res.status(200).json(response.data);
+      } else {
+        return res.status(400).json({ error: "Invalid file format" });
+      }
+    } catch (error) {
+      console.error("Error uploading image to ImageKit:", error);
+      res.status(500).json({ error: "Internal Server Error" });
     }
-
-    return NextResponse.json(authParams);
-  } catch (error: any) {
-    return NextResponse.json(
-      {
-        error: "Failed to retrieve authentication parameters",
-        details: error.message,
-      },
-      { status: 500 }
-    );
+  } else {
+    res.status(405).json({ error: "Method Not Allowed" });
   }
-}
+};
+
+export default uploadImageToImageKit;

@@ -15,7 +15,11 @@ const ImageUpload = () => {
     setFile({ filePath: res.filePath });
   };
 
-  function authenticator(): Promise<{ signature: string; expire: number; token: string; }> {
+  function authenticator(): Promise<{
+    signature: string;
+    expire: number;
+    token: string;
+  }> {
     throw new Error("Function not implemented.");
   }
 

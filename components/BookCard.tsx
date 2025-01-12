@@ -5,67 +5,50 @@ import { cn } from "@/lib/utils";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 
-interface Book {
+// Book type definition
+type Book = {
   id: string;
   title: string;
   genre: string;
-  color: string;
-  cover: string;
-  isLoanedBook?: boolean;
-  returnDaysLeft?: number; // Optional prop for dynamic return days
-}
+  coverColor: string;
+  coverUrl: string;
+  isLoanedBook?: boolean; // Optional property
+};
 
 const BookCard = ({
   id,
   title,
   genre,
-  color,
-  cover,
+  coverColor,
+  coverUrl,
   isLoanedBook = false,
-  returnDaysLeft = 11, // Default to 11 days if not provided
 }: Book) => (
-  <li className={cn("book-card", isLoanedBook && "xs:w-52 w-full")}>
+  <li className={cn(isLoanedBook && "xs:w-52 w-full")}>
     <Link
       href={`/books/${id}`}
-      className={cn("flex flex-col items-center", isLoanedBook && "w-full")}
-      aria-label={`View details of ${title}`}
+      className={cn(isLoanedBook && "w-full flex flex-col items-center")}
     >
-      {/* Book Cover */}
-      <BookCover coverColor={color} coverImage={cover} />
+      <BookCover coverColor={coverColor} coverImage={coverUrl} />
 
-      {/* Book Info */}
-      <div
-        className={cn(
-          "mt-4 text-center",
-          !isLoanedBook && "xs:max-w-40 max-w-28"
-        )}
-      >
-        <p className="book-title truncate" title={title}>
-          {title}
-        </p>
-        <p className="book-genre text-sm text-light-200">{genre}</p>
+      <div className={cn("mt-4", !isLoanedBook && "xs:max-w-40 max-w-28")}>
+        <p className="book-title">{title}</p>
+        <p className="book-genre">{genre}</p>
       </div>
 
-      {/* Loaned Book Section */}
       {isLoanedBook && (
-        <div className="mt-4 w-full text-center">
-          <div className="book-loaned flex items-center justify-between gap-2 text-sm text-light-100">
+        <div className="mt-3 w-full">
+          <div className="book-loaned">
             <Image
               src="/icons/calendar.svg"
-              alt="Calendar icon"
+              alt="calendar"
               width={18}
               height={18}
               className="object-contain"
             />
-            <p>{returnDaysLeft} days left to return</p>
+            <p className="text-light-100">11 days left to return</p>
           </div>
 
-          <Button
-            className="book-btn mt-2 text-dark-800"
-            aria-label={`Download receipt for ${title}`}
-          >
-            Download receipt
-          </Button>
+          <Button className="book-btn">Download receipt</Button>
         </div>
       )}
     </Link>

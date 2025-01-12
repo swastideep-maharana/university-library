@@ -52,7 +52,7 @@ const FileUpload = ({
   onFileChange,
   value,
 }: Props) => {
-  const ikUploadRef = useRef<HTMLInputElement | null>(null); // Proper type for ref
+  const ikUploadRef = useRef(null);
   const [file, setFile] = useState<{ filePath: string | null }>({
     filePath: value ?? null,
   });
@@ -68,7 +68,7 @@ const FileUpload = ({
   };
 
   const onError = (error: any) => {
-    console.error("File upload error:", error);
+    console.log(error);
     toast({
       title: `${type} upload failed`,
       description: `Your ${type} could not be uploaded. Please try again.`,
@@ -79,7 +79,6 @@ const FileUpload = ({
   const onSuccess = (res: any) => {
     setFile(res);
     onFileChange(res.filePath);
-
     toast({
       title: `${type} uploaded successfully`,
       description: `${res.filePath} uploaded successfully!`,
@@ -87,24 +86,22 @@ const FileUpload = ({
   };
 
   const onValidate = (file: File) => {
-    if (type === "image") {
-      if (file.size > 20 * 1024 * 1024) {
-        toast({
-          title: "File size too large",
-          description: "Please upload a file that is less than 20MB in size",
-          variant: "destructive",
-        });
-        return false;
-      }
-    } else if (type === "video") {
-      if (file.size > 50 * 1024 * 1024) {
-        toast({
-          title: "File size too large",
-          description: "Please upload a file that is less than 50MB in size",
-          variant: "destructive",
-        });
-        return false;
-      }
+    if (type === "image" && file.size > 20 * 1024 * 1024) {
+      toast({
+        title: "File size too large",
+        description: "Please upload a file that is less than 20MB in size",
+        variant: "destructive",
+      });
+      return false;
+    }
+
+    if (type === "video" && file.size > 50 * 1024 * 1024) {
+      toast({
+        title: "File size too large",
+        description: "Please upload a file that is less than 50MB in size",
+        variant: "destructive",
+      });
+      return false;
     }
 
     return true;
@@ -137,7 +134,8 @@ const FileUpload = ({
         onClick={(e) => {
           e.preventDefault();
           if (ikUploadRef.current) {
-            ikUploadRef.current.click();
+            // @ts-ignore
+            ikUploadRef.current?.click();
           }
         }}
       >

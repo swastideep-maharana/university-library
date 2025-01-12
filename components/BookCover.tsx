@@ -1,8 +1,10 @@
 "use client";
 
-import { cn } from "@/lib/utils";
 import React from "react";
+import { cn } from "@/lib/utils"; 
 import BookCoverSvg from "./BookCoverSvf";
+import { IKImage } from "imagekitio-next";
+import config from "@/lib/config";
 
 type BookCoverVariant = "extraSmall" | "small" | "medium" | "regular" | "wide";
 
@@ -17,54 +19,41 @@ const variantStyles: Record<BookCoverVariant, string> = {
 interface Props {
   className?: string;
   variant?: BookCoverVariant;
-  coverColor?: string;
-  coverImage?: string;
-  altText?: string;
+  coverColor: string;
+  coverImage: string;
 }
 
-const BookCover: React.FC<Props> = ({
+const BookCover = ({
   className,
   variant = "regular",
   coverColor = "#012B48",
   coverImage = "https://placehold.co/400x600.png",
-  altText = "Book cover image",
-}) => {
+}: Props) => {
   return (
     <div
       className={cn(
-        "relative transition-all duration-300 rounded-sm overflow-hidden",
+        "relative transition-all duration-300",
         variantStyles[variant],
         className
       )}
-      style={{ backgroundColor: coverColor }}
-      aria-label={altText}
     >
-      {/* Book Side SVG */}
-      <div className="absolute inset-0 z-0 flex items-center justify-center ">
-        <BookCoverSvg coverColor={coverColor} />
-      </div>
+      <BookCoverSvg coverColor={coverColor} />
 
-      {/* Book Cover Image */}
       <div
         className="absolute z-10"
-        style={{
-          left: "12%",
-          width: "87.5%",
-          height: "88%",
-        }}
+        style={{ left: "12%", width: "87.5%", height: "88%" }}
       >
-        <img
-          src={coverImage}
-          alt={altText}
-          className="w-full h-full object-cover rounded-sm"
-          onError={(e) => {
-            e.currentTarget.src = "https://placehold.co/400x600.png";
-            e.currentTarget.alt = "Fallback book cover image";
-          }}
+        <IKImage
+          path={coverImage}
+          urlEndpoint={config.env.imagekit.urlEndpoint}
+          alt="Book cover"
+          fill
+          className="rounded-sm object-fill"
+          loading="lazy"
+          lqip={{ active: true }}
         />
       </div>
     </div>
   );
 };
-
 export default BookCover;
